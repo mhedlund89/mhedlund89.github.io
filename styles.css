@@ -267,6 +267,60 @@ a:hover { color: var(--accent); }
 }
 
 /* ============================================================
+   LINGO callout (open-source side project)
+   ============================================================ */
+.section--lingo { background: var(--bg-alt); }
+.lingo-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 44px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.lingo-card::before {
+  content: "";
+  position: absolute;
+  top: 0; right: 0;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle at top right, var(--accent-soft) 0%, transparent 60%);
+  pointer-events: none;
+  opacity: 0.6;
+}
+.lingo-card__body { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 22px; }
+.lingo-card__esps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.lingo-esp {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+}
+.lingo-card__desc {
+  color: var(--ink-3);
+  font-size: 16px;
+  line-height: 1.65;
+  max-width: 60ch;
+  margin: 0;
+}
+.lingo-card__cta { display: flex; gap: 12px; flex-wrap: wrap; }
+
+@media (max-width: 920px) {
+  .lingo-card { padding: 28px 24px; }
+}
+
+/* ============================================================
    IMPACT GRID (outcomes-first work section, replaces spotlights)
    ============================================================ */
 .impact-grid {
