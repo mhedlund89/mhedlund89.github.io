@@ -97,11 +97,25 @@
       setWidth(clientX - rect.left);
     };
 
-    divider.addEventListener('mousedown', (e) => {
-      if (!body.classList.contains('is-source-open')) return;
+    const startDrag = () => {
       dragging = true;
       divider.classList.add('is-dragging');
+      body.classList.add('is-dragging');           // disables iframe pointer events via CSS
       document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    };
+    const endDrag = () => {
+      if (!dragging) return;
+      dragging = false;
+      divider.classList.remove('is-dragging');
+      body.classList.remove('is-dragging');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+
+    divider.addEventListener('mousedown', (e) => {
+      if (!body.classList.contains('is-source-open')) return;
+      startDrag();
       e.preventDefault();
     });
 
@@ -110,17 +124,14 @@
       onMove(e.clientX);
     });
 
-    document.addEventListener('mouseup', () => {
-      if (!dragging) return;
-      dragging = false;
-      divider.classList.remove('is-dragging');
-      document.body.style.cursor = '';
-    });
+    document.addEventListener('mouseup', endDrag);
+    // Safety: if drag is interrupted (window loses focus, cursor briefly leaves doc, etc.), clean up
+    window.addEventListener('blur', endDrag);
+    document.addEventListener('mouseleave', endDrag);
 
     divider.addEventListener('touchstart', (e) => {
       if (!body.classList.contains('is-source-open')) return;
-      dragging = true;
-      divider.classList.add('is-dragging');
+      startDrag();
       if (e.cancelable) e.preventDefault();
     }, { passive: false });
 
@@ -130,11 +141,8 @@
       if (e.cancelable) e.preventDefault();
     }, { passive: false });
 
-    document.addEventListener('touchend', () => {
-      if (!dragging) return;
-      dragging = false;
-      divider.classList.remove('is-dragging');
-    });
+    document.addEventListener('touchend', endDrag);
+    document.addEventListener('touchcancel', endDrag);
 
     divider.addEventListener('keydown', (e) => {
       if (!body.classList.contains('is-source-open')) return;

@@ -274,24 +274,55 @@ a:hover { color: var(--accent); }
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  padding: 44px 48px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 0;
   position: relative;
   overflow: hidden;
 }
-.lingo-card::before {
-  content: "";
-  position: absolute;
-  top: 0; right: 0;
-  width: 320px;
-  height: 320px;
-  background: radial-gradient(circle at top right, var(--accent-soft) 0%, transparent 60%);
-  pointer-events: none;
-  opacity: 0.6;
+.lingo-card__shot {
+  display: block;
+  background: #0f172a;
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  line-height: 0;
 }
-.lingo-card__body { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 22px; }
+.lingo-card__shot img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.lingo-card__shot:hover img { transform: scale(1.015); }
+.lingo-card__shot::after {
+  content: "↗ Open live";
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  background: rgba(15, 23, 42, 0.85);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.lingo-card__shot:hover::after { opacity: 1; transform: translateY(0); }
+.lingo-card__body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 36px 40px 40px;
+}
 .lingo-card__esps {
   display: flex;
   flex-wrap: wrap;
@@ -307,6 +338,11 @@ a:hover { color: var(--accent); }
   color: var(--ink-2);
   border: 1px solid var(--line);
 }
+.lingo-esp--more {
+  background: transparent;
+  border-style: dashed;
+  color: var(--muted);
+}
 .lingo-card__desc {
   color: var(--ink-3);
   font-size: 16px;
@@ -317,7 +353,7 @@ a:hover { color: var(--accent); }
 .lingo-card__cta { display: flex; gap: 12px; flex-wrap: wrap; }
 
 @media (max-width: 920px) {
-  .lingo-card { padding: 28px 24px; }
+  .lingo-card__body { padding: 24px 22px 28px; }
 }
 
 /* ============================================================
@@ -566,6 +602,14 @@ a:hover { color: var(--accent); }
 }
 .email-modal__body.is-source-open {
   grid-template-columns: minmax(220px, var(--preview-w, 1fr)) 6px minmax(220px, 1fr);
+}
+/* While dragging the divider, block iframe + source pane from capturing pointer
+   events — otherwise the iframe swallows mousemove and the drag gets stuck */
+.email-modal__body.is-dragging .email-modal__iframe,
+.email-modal__body.is-dragging .email-modal__pre,
+.email-modal__body.is-dragging .email-modal__code {
+  pointer-events: none;
+  user-select: none;
 }
 .email-modal__code[hidden] { display: none; }
 .email-modal__body:not(.is-source-open) .email-modal__divider { display: none; }
