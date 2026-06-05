@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# Pre-cleanup backups of email source (kept locally; not for deploy)
+emails/.backup/
+
+# Orphaned tool screenshots from earlier portfolio iteration
+assets/screenshots/
+
+# Editor / OS noise
+.vscode/
+.idea/
+*~
+*.swp
