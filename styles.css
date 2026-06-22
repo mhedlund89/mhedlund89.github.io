@@ -266,6 +266,10 @@ a:hover { color: var(--accent); }
   margin: 0;
 }
 
+.section__cta {
+  margin-top: 20px;
+}
+
 /* ============================================================
    LINGO callout (open-source side project)
    ============================================================ */
