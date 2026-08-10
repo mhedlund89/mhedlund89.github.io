@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ingredient Hub — PRD</title>
+<meta name="description" content="Product requirements and system plan for Ingredient Hub, an allergen-provenance database.">
+<!-- Unlisted page: keep it out of search results. Deliberately no robots.txt Disallow
+     rule for this path, because that file is world-readable and would advertise the
+     very path we are trying not to publicise. -->
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<style>
+  /* Minimal reset (the artifact host normally supplies one) */
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; }
+  img, svg { max-width: 100%; display: block; }
+  table { border-collapse: collapse; }
+</style>
+<style>
+  /* ---- Tokens: light is the base set, complete on bare :root ---- */
+  :root {
+    --ground:      #F5F7F6;
+    --surface:     #FFFFFF;
+    --surface-sunk:#EDF1F0;
+    --ink:         #141C1B;
+    --ink-2:       #33413F;
+    --muted:       #5A6968;
+    --line:        #DCE3E1;
+    --line-strong: #C3CFCC;
+    --accent:      #0E5A54;
+    --accent-soft: #E2EDEB;
+
+    --st-present:  #8E2116;
+    --st-ambig:    #C4891A;
+    --st-brand:    #2A5C8A;
+    --st-silent:   #8A9694;
+
+    --display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --body: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, "Cascadia Mono", Consolas, monospace;
+
+    --measure: 68ch;
+    --wide: 62rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #0C1211;
+      --surface:     #131B1A;
+      --surface-sunk:#0F1716;
+      --ink:         #E6ECEB;
+      --ink-2:       #C2CFCD;
+      --muted:       #94A5A2;
+      --line:        #253230;
+      --line-strong: #35443F;
+      --accent:      #48B8AC;
+      --accent-soft: #16302D;
+
+      --st-present:  #E2705A;
+      --st-ambig:    #D9A544;
+      --st-brand:    #5FA0DC;
+      --st-silent:   #8B9997;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:      #0C1211;
+    --surface:     #131B1A;
+    --surface-sunk:#0F1716;
+    --ink:         #E6ECEB;
+    --ink-2:       #C2CFCD;
+    --muted:       #94A5A2;
+    --line:        #253230;
+    --line-strong: #35443F;
+    --accent:      #48B8AC;
+    --accent-soft: #16302D;
+
+    --st-present:  #E2705A;
+    --st-ambig:    #D9A544;
+    --st-brand:    #5FA0DC;
+    --st-silent:   #8B9997;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16.5px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: var(--wide);
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 4rem) clamp(1.15rem, 4vw, 3rem) 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3.25rem;
+  }
+
+  /* ---- Masthead ---- */
+  .masthead { display: flex; flex-direction: column; gap: 1.1rem; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0;
+  }
+  h1 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(2.1rem, 5.6vw, 3.3rem);
+    line-height: 1.06;
+    letter-spacing: -0.017em;
+    text-wrap: balance;
+    margin: 0;
+  }
+  .standfirst {
+    max-width: var(--measure);
+    font-size: 1.12rem;
+    color: var(--ink-2);
+    margin: 0;
+  }
+  .docmeta {
+    display: flex; flex-wrap: wrap; gap: 0 2rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    color: var(--muted);
+  }
+  .docmeta b { color: var(--ink-2); font-weight: 500; }
+
+  /* ---- Sections ---- */
+  section { display: flex; flex-direction: column; gap: 1.15rem; }
+  h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(1.4rem, 2.8vw, 1.85rem);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    text-wrap: balance;
+    margin: 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--line-strong);
+  }
+  h3 {
+    font-family: var(--body);
+    font-weight: 650;
+    font-size: 0.95rem;
+    letter-spacing: 0.005em;
+    margin: 0.6rem 0 0;
+  }
+  p { margin: 0; max-width: var(--measure); }
+  section > ul, section > ol { max-width: var(--measure); }
+  ul, ol { margin: 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  li::marker { color: var(--muted); }
+  strong { font-weight: 650; }
+  code {
+    font-family: var(--mono);
+    font-size: 0.855em;
+    background: var(--surface-sunk);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.08em 0.34em;
+  }
+
+  /* ---- Callout: the finding that drives the doc ---- */
+  .finding {
+    border-left: 3px solid var(--st-present);
+    background: var(--surface);
+    padding: 1.15rem 1.35rem;
+    display: flex; flex-direction: column; gap: 0.6rem;
+  }
+  .finding .label {
+    font-family: var(--mono);
+    font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--st-present);
+  }
+  .finding p { max-width: none; }
+
+  /* ---- Metrics ---- */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .metric { background: var(--surface); padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.25rem; }
+  .metric .n {
+    font-family: var(--display);
+    font-size: 1.95rem; line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .metric .k {
+    font-family: var(--mono);
+    font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .metric .sub { font-size: 0.78rem; color: var(--muted); }
+
+  /* ---- Chart ---- */
+  figure { margin: 0; display: flex; flex-direction: column; gap: 0.9rem; }
+  .figtitle { font-weight: 650; font-size: 0.92rem; }
+  .figsub { font-size: 0.82rem; color: var(--muted); max-width: var(--measure); }
+  .bars { display: flex; flex-direction: column; gap: 0.42rem; }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 10.5rem 1fr 3rem;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .bar-label { font-family: var(--mono); font-size: 0.76rem; color: var(--ink-2); text-align: right; }
+  .bar-track { background: var(--surface-sunk); height: 1.15rem; position: relative; }
+  .bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 0 3px 3px 0;
+    min-width: 2px;
+  }
+  .bar-fill.zero { background: var(--st-present); width: 3px; border-radius: 0; }
+  .bar-val {
+    font-family: var(--mono); font-size: 0.79rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-2);
+  }
+  .bar-val.zero { color: var(--st-present); font-weight: 600; }
+  figcaption { font-size: 0.79rem; color: var(--muted); max-width: var(--measure); }
+
+  /* ---- State legend: the recurring motif ---- */
+  .states { display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+  .state { background: var(--surface); padding: 0.85rem 1.05rem; display: grid; grid-template-columns: 11rem 1fr; gap: 1rem; align-items: start; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 0.42rem;
+    font-family: var(--mono); font-size: 0.73rem; font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .dot { width: 0.62rem; height: 0.62rem; border-radius: 50%; flex: none; }
+  .chip.present  { color: var(--st-present); } .chip.present .dot  { background: var(--st-present); }
+  .chip.ambig    { color: var(--st-ambig);   } .chip.ambig .dot    { background: var(--st-ambig); }
+  .chip.brand    { color: var(--st-brand);   } .chip.brand .dot    { background: var(--st-brand); }
+  .chip.silent   { color: var(--st-silent);  } .chip.silent .dot   { background: var(--st-silent); }
+  .state .desc { font-size: 0.88rem; color: var(--ink-2); }
+
+  /* ---- Tables ---- */
+  .scroll { overflow-x: auto; border: 1px solid var(--line); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.87rem; min-width: 34rem; }
+  th, td { text-align: left; padding: 0.62rem 0.85rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  thead th {
+    font-family: var(--mono); font-size: 0.67rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); font-weight: 500; background: var(--surface-sunk);
+    position: sticky; top: 0;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.id { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); white-space: nowrap; }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  /* ---- Phases: a real sequence, so numbered ---- */
+  .phases { display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+  .phase { background: var(--surface); padding: 1rem 1.15rem; display: grid; grid-template-columns: 2.5rem 1fr; gap: 1rem; }
+  .phase .pn {
+    font-family: var(--mono); font-size: 0.95rem; font-weight: 600;
+    color: var(--accent); font-variant-numeric: tabular-nums;
+  }
+  .phase .pbody { display: flex; flex-direction: column; gap: 0.3rem; }
+  .phase .pt { font-weight: 650; font-size: 0.94rem; }
+  .phase .pd { font-size: 0.87rem; color: var(--ink-2); }
+  .phase.done .pn { color: var(--st-brand); }
+  .tag {
+    font-family: var(--mono); font-size: 0.63rem; letter-spacing: 0.09em; text-transform: uppercase;
+    border: 1px solid currentColor; padding: 0.08rem 0.34rem; border-radius: 2px;
+    color: var(--st-brand);
+  }
+
+  /* ---- Non-goals ---- */
+  .nogoals { display: flex; flex-direction: column; gap: 0.7rem; max-width: var(--measure); }
+  .nogoal { display: grid; grid-template-columns: 1.4rem 1fr; gap: 0.6rem; font-size: 0.92rem; }
+  .nogoal .x { color: var(--st-present); font-family: var(--mono); font-weight: 600; }
+
+  hr { border: none; border-top: 1px solid var(--line); margin: 0; }
+
+  a { color: var(--accent); text-underline-offset: 2px; }
+  a:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+  @media (max-width: 34rem) {
+    .bar-row { grid-template-columns: 7.5rem 1fr 2.4rem; }
+    .state { grid-template-columns: 1fr; gap: 0.35rem; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <p class="eyebrow">Product requirements · v0.1 · draft</p>
+    <h1>Ingredient Hub</h1>
+    <p class="standfirst">
+      A daily-updating database of restaurant and packaged-food ingredients, built so a
+      person avoiding an allergen can see what a brand has actually said — and, just as
+      importantly, where a brand has said nothing at all.
+    </p>
+    <div class="docmeta">
+      <span>Owner <b>Marc Hedlund</b></span>
+      <span>Status <b>Phase 0 complete, measured</b></span>
+      <span>Drafted <b>2026-08-10</b></span>
+      <span>Basis <b>277 live McDonald's items</b></span>
+    </div>
+  </header>
+
+  <section>
+    <h2>Why this document exists now</h2>
+    <p>
+      The original goal was to find a public API carrying ingredients for the big American
+      restaurant and beverage companies. That API does not exist. No brand among McDonald's,
+      Yum! Brands, Darden, Brinker, Dine Brands, Cracker Barrel, Coca-Cola or PepsiCo
+      publishes ingredient data through a developer interface. What exists is web pages,
+      PDFs, and one third-party platform.
+    </p>
+    <p>
+      So rather than plan against assumptions, we built the smallest real thing — one
+      brand, end to end — and measured what came back. This PRD is written against that
+      measurement. Every number below is from a live ingestion run, not an estimate.
+    </p>
+
+    <div class="metrics">
+      <div class="metric"><span class="k">Items stored</span><span class="n">277</span><span class="sub">from 300 processed</span></div>
+      <div class="metric"><span class="k">No declaration</span><span class="n">58%</span><span class="sub">160 of 277 items</span></div>
+      <div class="metric"><span class="k">Review flags</span><span class="n">123</span><span class="sub">auto-raised</span></div>
+      <div class="metric"><span class="k">Tests passing</span><span class="n">57</span><span class="sub">0 failing</span></div>
+      <div class="metric"><span class="k">Sitemap URLs</span><span class="n">317</span><span class="sub">294 unique ids</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The finding that reshaped the plan</h2>
+
+    <div class="finding">
+      <span class="label">Measured, not assumed</span>
+      <p>
+        <strong>58% of McDonald's menu items carry no allergen declaration from the brand
+        at all.</strong> That includes the plain Hamburger and the McRib. Across all 277
+        items there are <strong>zero</strong> peanut declarations and <strong>zero</strong>
+        tree-nut declarations — not because the food is free of them, but because the
+        brand's <code>Contains:</code> statements are patchy rather than systematic.
+      </p>
+    </div>
+
+    <p>
+      This matters more than any architectural decision in the project. The clean path —
+      read the brand's own FDA-style <code>Contains:</code> declaration and report it —
+      works beautifully for the 42% of items that have one. For the rest, every allergen
+      comes back <span class="chip silent"><span class="dot"></span>not_stated</span>, and
+      an item rendered as “no allergens declared” reads to a frightened parent as “no
+      allergens.”
+    </p>
+    <p>
+      The McDonald's Chocolate Chip Cookie is the clearest example. Its ingredient list
+      names bleached wheat flour, egg, milkfat, whey and soy lecithin. It carries no
+      <code>Contains:</code> statement. The brand-assertion path finds nothing.
+    </p>
+
+    <figure>
+      <span class="figtitle">Brand-declared allergens across 277 McDonald's items</span>
+      <span class="figsub">
+        Count of items where McDonald's explicitly declared each allergen. The two zeros are
+        measured zeros, not missing data — and they are the least believable numbers here.
+      </span>
+      <div class="bars">
+        <div class="bar-row"><span class="bar-label">milk</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">103</span></div>
+        <div class="bar-row"><span class="bar-label">wheat</span><div class="bar-track"><div class="bar-fill" style="width:74.8%"></div></div><span class="bar-val">77</span></div>
+        <div class="bar-row"><span class="bar-label">soy</span><div class="bar-track"><div class="bar-fill" style="width:65.0%"></div></div><span class="bar-val">67</span></div>
+        <div class="bar-row"><span class="bar-label">egg</span><div class="bar-track"><div class="bar-fill" style="width:48.5%"></div></div><span class="bar-val">50</span></div>
+        <div class="bar-row"><span class="bar-label">sesame</span><div class="bar-track"><div class="bar-fill" style="width:10.7%"></div></div><span class="bar-val">11</span></div>
+        <div class="bar-row"><span class="bar-label">fish</span><div class="bar-track"><div class="bar-fill" style="width:2.9%"></div></div><span class="bar-val">3</span></div>
+        <div class="bar-row"><span class="bar-label">crustacean</span><div class="bar-track"><div class="bar-fill" style="width:1%"></div></div><span class="bar-val">1</span></div>
+        <div class="bar-row"><span class="bar-label">peanut</span><div class="bar-track"><div class="bar-fill zero"></div></div><span class="bar-val zero">0</span></div>
+        <div class="bar-row"><span class="bar-label">tree nut</span><div class="bar-track"><div class="bar-fill zero"></div></div><span class="bar-val zero">0</span></div>
+      </div>
+      <figcaption>
+        Source: local ingestion run, 2026-08-08, against McDonald's US published product
+        data. 38 additional claims were precautionary “may contain” warnings.
+      </figcaption>
+    </figure>
+
+    <p>
+      <strong>Consequence for the roadmap:</strong> ingredient-text inference was originally
+      a later phase, a nice-to-have refinement on top of brand declarations. The measurement
+      moves it to load-bearing. Without it, the product is silent on the majority of items.
+    </p>
+  </section>
+
+  <section>
+    <h2>Who this is for</h2>
+    <p>
+      One primary user: <strong>a person who must avoid a specific allergen</strong>, or who
+      shops and orders for someone who does. They arrive with a narrow, urgent question —
+      “does this item have milk in it?” — and they need an answer they can act on, plus an
+      honest signal when no answer exists.
+    </p>
+    <p>
+      A secondary user is the <strong>maintainer</strong> reviewing what changed today: which
+      formulations moved, which parsers broke, which brands went dark. This user keeps the
+      first user safe, so the review tooling is a product surface, not an internal admin page.
+    </p>
+  </section>
+
+  <section>
+    <h2>The four states</h2>
+    <p>
+      The core information design of the product. There are deliberately only four, and
+      <strong>none of them means “safe.”</strong>
+    </p>
+    <div class="states">
+      <div class="state">
+        <span class="chip present"><span class="dot"></span>present</span>
+        <span class="desc">Listed in an ingredient statement, or marked in a brand's allergen matrix. The strongest signal we can carry.</span>
+      </div>
+      <div class="state">
+        <span class="chip ambig"><span class="dot"></span>ambiguous</span>
+        <span class="desc">A precautionary “may contain” warning, or wording we could not resolve. Not a confirmed ingredient — calling it <em>present</em> would put words in the brand's mouth — and emphatically not safe. Renders as “do not assume safe.”</span>
+      </div>
+      <div class="state">
+        <span class="chip brand"><span class="dot"></span>absent_per_brand</span>
+        <span class="desc">The brand affirmatively states this is not an ingredient. Available only from allergen matrices and platform data. Speaks to <em>ingredients only</em> — it says nothing about shared fryers.</span>
+      </div>
+      <div class="state">
+        <span class="chip silent"><span class="dot"></span>not_stated</span>
+        <span class="desc">No source we hold addresses this allergen for this item. The majority case today. Carries no implication of absence whatsoever.</span>
+      </div>
+    </div>
+    <p>
+      There is no plain <code>absent</code> value, and the database schema physically cannot
+      store one — a <code>CHECK</code> constraint rejects it. That rule lives in the schema
+      rather than in validation code specifically so a careless future caller cannot route
+      around it.
+    </p>
+  </section>
+
+  <section>
+    <h2>System plan</h2>
+    <p>
+      Five stages. Raw bytes are captured before anything is parsed, so a parser that breaks
+      still leaves behind the document that broke it.
+    </p>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>Stage</th><th>Module</th><th>Responsibility</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="id">1 · fetch</td><td><code>fetcher.js</code></td><td>robots.txt per host, per-host rate limit, identifying User-Agent, 403/429 → stop permanently rather than retry</td></tr>
+          <tr><td class="id">2 · capture</td><td><code>snapshot.js</code></td><td>Immutable content-addressed store of raw bytes. Nothing overwrites; identical bytes collapse to one path</td></tr>
+          <tr><td class="id">3 · normalize</td><td><code>normalize.js</code></td><td>All three source families → one canonical item. Rejects any incomplete nine-allergen claim set</td></tr>
+          <tr><td class="id">4 · resolve</td><td><code>contains.js</code>, <code>allergens.js</code></td><td>Brand declarations first; dictionary inference where the brand is silent. Deterministic and traceable to the triggering substring</td></tr>
+          <tr><td class="id">5 · detect</td><td><code>diff.js</code>, <code>store.js</code></td><td>Content-hash diff against last accepted version; changes append to history and enter the review queue</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Three source families</h3>
+    <p>
+      The brands publish different <em>shapes</em> of data, not just different content. This
+      is the single most important structural fact about the domain.
+    </p>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>Family</th><th>Brands</th><th>Shape</th><th>Allergen determination</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="id">A</td>
+            <td>McDonald's, Taco Bell, KFC, Pizza Hut</td>
+            <td>Free-text ingredient statements</td>
+            <td>Brand <code>Contains:</code> where present (42%); ours by inference otherwise</td>
+          </tr>
+          <tr>
+            <td class="id">B</td>
+            <td>Darden (8 brands), Brinker (2)</td>
+            <td>PDF item × allergen grids</td>
+            <td>Brand's own, including negative assertions. No ingredient detail</td>
+          </tr>
+          <tr>
+            <td class="id">C</td>
+            <td>EveryBite platform (~54 chains incl. Cracker Barrel, TGI Fridays)</td>
+            <td>Structured platform data</td>
+            <td>Brand's own, at individual-ingredient granularity. Best available source</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Family B carries allergens without ingredients; Family A carries ingredients from which
+      allergens must be inferred; Family C carries both. Neither A nor B alone answers every
+      question, which is why the canonical schema records <em>which family</em> each claim
+      came from alongside the claim itself.
+    </p>
+  </section>
+
+  <section>
+    <h2>Functional requirements</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>ID</th><th>Requirement</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr><td class="id">FR-1</td><td>Every allergen claim stores source URL, snapshot hash, parser version, source family, and fetch time</td><td>A claim a user cannot verify is not usable for a safety decision</td></tr>
+          <tr><td class="id">FR-2</td><td>The system never emits an “absent” or “free of” state</td><td>No source describes cross-contact; absence cannot be established</td></tr>
+          <tr><td class="id">FR-3</td><td>An item with an ingredient list but no brand declaration is flagged, never displayed as an all-clear</td><td>The 58% case. Silence must not read as safety</td></tr>
+          <tr><td class="id">FR-4</td><td>Allergen inference is deterministic and cites the exact substring that triggered it</td><td>Reproducible and auditable; an LLM may route ambiguity to review but never decide</td></tr>
+          <tr><td class="id">FR-5</td><td>Formulation changes append to history; nothing is overwritten</td><td>Change history is the product, not a byproduct</td></tr>
+          <tr><td class="id">FR-6</td><td>A failed or blocked source marks its items stale rather than serving prior data as current</td><td>Silent staleness is the failure mode that actually causes harm</td></tr>
+          <tr><td class="id">FR-7</td><td>Changes enter a review queue rather than auto-publishing; the same pending issue is never queued twice</td><td>A diff may mean a reformulation or a broken parser. Duplicates would bury real findings</td></tr>
+          <tr><td class="id">FR-8</td><td>Unsupported brands are listed with the reason, visible to users</td><td>A stated gap is safe; an invisible gap is not</td></tr>
+          <tr><td class="id">FR-9</td><td>Matrix extraction resolves columns by header text, never fixed index</td><td>A silent off-by-one column would mis-assign an allergen — the worst failure available</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Explicitly not building</h2>
+    <div class="nogoals">
+      <div class="nogoal"><span class="x">✕</span><span><strong>“Safe to eat” verdicts or a gluten-free/allergen-free filter.</strong> Cross-contact is invisible to every source we have. Cracker Barrel's own guidance is blunter than anything we would write: fried and grilled items should not be consumed if you have a food allergy.</span></div>
+      <div class="nogoal"><span class="x">✕</span><span><strong>Nutrition and calorie tracking.</strong> Abundantly served by free sources already. Adding it dilutes the one thing this does that nothing else does.</span></div>
+      <div class="nogoal"><span class="x">✕</span><span><strong>Circumventing bot protection.</strong> Applebee's returns 403 to a plain request, so Dine Brands ships as unsupported. Blocks are respected, not routed around.</span></div>
+      <div class="nogoal"><span class="x">✕</span><span><strong>Real-time or per-location accuracy.</strong> Formulations change quarterly; regional and limited-time items are frequently undocumented. Daily change detection, not live truth.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Build sequence</h2>
+    <div class="phases">
+      <div class="phase done">
+        <span class="pn">0</span>
+        <div class="pbody">
+          <span class="pt">Foundation + McDonald's <span class="tag">complete</span></span>
+          <span class="pd">Schema with the four-state CHECK constraint, snapshot store, polite fetcher, brand-declaration parser, McDonald's adapter, ingest runner. 57 tests passing; 277 items ingested live.</span>
+        </div>
+      </div>
+      <div class="phase">
+        <span class="pn">1</span>
+        <div class="pbody">
+          <span class="pt">Allergen inference — promoted</span>
+          <span class="pd">Dictionary inference over ingredient text with the FDA nine and their derivative names. Cross-checked against brand declarations, disagreements to review. Was Phase 4; the 58% measurement makes it the blocking gap.</span>
+        </div>
+      </div>
+      <div class="phase">
+        <span class="pn">2</span>
+        <div class="pbody">
+          <span class="pt">Change detection + daily run</span>
+          <span class="pd">Content-hash diffing, staleness marking, scheduled ingestion. Verified by modifying a stored snapshot and by killing the network mid-run.</span>
+        </div>
+      </div>
+      <div class="phase">
+        <span class="pn">3</span>
+        <div class="pbody">
+          <span class="pt">EveryBite — Family C</span>
+          <span class="pd">~54 brands from one adapter at ingredient granularity, behind a kill switch so nothing downstream depends on it. Sanctioned access requested in parallel.</span>
+        </div>
+      </div>
+      <div class="phase">
+        <span class="pn">4</span>
+        <div class="pbody">
+          <span class="pt">Darden + Brinker — Family B</span>
+          <span class="pd">Coordinate-aware PDF grid extraction, ~10 brands from one extractor. Includes a shuffled-header fixture test as the off-by-one column guard.</span>
+        </div>
+      </div>
+      <div class="phase">
+        <span class="pn">5</span>
+        <div class="pbody">
+          <span class="pt">Remaining QSR, then dashboard</span>
+          <span class="pd">Taco Bell, KFC, Pizza Hut on the Family A pattern. Then the browse and review surface, showing provenance, source family, last-verified date, and the unsupported list.</span>
+        </div>
+      </div>
+      <div class="phase">
+        <span class="pn">6</span>
+        <div class="pbody">
+          <span class="pt">Packaged goods</span>
+          <span class="pd">Coca-Cola and PepsiCo retail products via Open Food Facts daily deltas and USDA FoodData Central, through the same normalization contract.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Success measures</h2>
+    <ul>
+      <li><strong>Declaration coverage:</strong> share of items with at least one resolved allergen claim. Baseline <strong>42%</strong> today, from brand declarations alone. Phase 1 should move this decisively; the honest target is coverage, not a coverage <em>percentage</em> chosen in advance.</li>
+      <li><strong>Provenance completeness:</strong> 100% of claims trace to a retrievable snapshot and a working public URL. Currently met.</li>
+      <li><strong>Review latency:</strong> a flagged change is resolved before it is presented as current — the queue should not grow monotonically.</li>
+      <li><strong>Inference agreement:</strong> where both a brand declaration and our inference exist, they agree. Disagreements are the highest-value bug signal in the system.</li>
+      <li><strong>Zero false all-clears:</strong> no item ever renders as having no allergens when its own ingredient text names one. This is the only metric with a hard target.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Open risks</h2>
+    <ul>
+      <li><strong>Inference is now safety-critical.</strong> Promoting it to Phase 1 means our own parsing, not the brand's declaration, becomes the answer for most items. That shifts real liability onto our dictionary and demands adversarial testing for derivative names — whey, casein, semolina, albumin, tahini.</li>
+      <li><strong>Zero peanut and tree-nut declarations</strong> across 277 items is a strong signal that brand declarations cannot be trusted as complete, even where present. Absence of a declaration is not evidence, and now we have measured proof.</li>
+      <li><strong>Family B gives allergens without ingredients.</strong> Darden and Brinker items will never answer non-allergen dietary questions. This is a permanent shape difference, not a coverage gap to close.</li>
+      <li><strong>EveryBite is unsanctioned pending reply</strong> and may change or withdraw access at any time. Nothing may depend on it.</li>
+      <li><strong>Adapters are permanently maintenance-bearing.</strong> Chains restructure pages and revise PDFs at will. 17 of 317 detail fetches already failed on the first live run.</li>
+      <li><strong>The deepest limit is not technical.</strong> This dataset can support avoidance decisions. It cannot support safety clearance, and no amount of engineering changes that.</li>
+    </ul>
+  </section>
+
+  <hr>
+
+  <section>
+    <h2>Appendix — first-run data quality</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Observation</th><th class="num">Count</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td>Product URLs in published sitemap</td><td class="num">317</td><td>Enumeration source</td></tr>
+          <tr><td>Unique product ids behind them</td><td class="num">294</td><td>23 URLs are aliases of another item</td></tr>
+          <tr><td>Detail fetches succeeded</td><td class="num">300</td><td>17 failed; retried next run</td></tr>
+          <tr><td>Distinct items stored</td><td class="num">277</td><td>After alias collapse</td></tr>
+          <tr><td>Flagged: no allergen declaration</td><td class="num">115</td><td>Substantial statement, zero declarations</td></tr>
+          <tr><td>Flagged: no ingredient statement</td><td class="num">7</td><td>Source returned nothing to parse</td></tr>
+          <tr><td>Flagged: unrecognized allergen term</td><td class="num">1</td><td>Non-FDA-nine term needing review</td></tr>
+          <tr><td>Precautionary “may contain” claims</td><td class="num">38</td><td>Stored as <em>ambiguous</em></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      One further detail worth recording, because it is the kind of bug that would have
+      shipped silently: McDonald's splits an item's ingredient statement across two API
+      fields, and <strong>neither is complete</strong>. For the Big Mac, the bun's
+      <code>Contains: Wheat, Sesame.</code> appears only in the first field, while the
+      cheese's <code>Contains: Milk, Soy.</code> appears only in the second. Reading either
+      field alone loses a real allergen on a top-selling item. There is now a regression test
+      asserting exactly that.
+    </p>
+  </section>
+
+</div>
+</body>
+</html>
