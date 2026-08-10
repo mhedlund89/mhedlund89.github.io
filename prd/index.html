@@ -5,14 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ingredient Hub — PRD</title>
 <meta name="description" content="Product requirements and system plan for Ingredient Hub, an allergen-provenance database.">
-<!-- Unlisted page: keep it out of search results. Deliberately no robots.txt Disallow
-     rule for this path, because that file is world-readable and would advertise the
-     very path we are trying not to publicise. -->
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="googlebot" content="noindex, nofollow">
 <meta name="color-scheme" content="light dark">
 <style>
-  /* Minimal reset (the artifact host normally supplies one) */
   html { -webkit-text-size-adjust: 100%; }
   body { margin: 0; }
   img, svg { max-width: 100%; display: block; }
@@ -303,7 +299,7 @@
 <div class="page">
 
   <header class="masthead">
-    <p class="eyebrow">Product requirements · v0.1 · draft</p>
+    <p class="eyebrow">Product requirements · v0.2 · draft</p>
     <h1>Ingredient Hub</h1>
     <p class="standfirst">
       A daily-updating database of restaurant and packaged-food ingredients, built so a
@@ -312,8 +308,8 @@
     </p>
     <div class="docmeta">
       <span>Owner <b>Marc Hedlund</b></span>
-      <span>Status <b>Phase 0 complete, measured</b></span>
-      <span>Drafted <b>2026-08-10</b></span>
+      <span>Status <b>Phase 0 built · v0.2 scope agreed</b></span>
+      <span>Revised <b>2026-08-10</b></span>
       <span>Basis <b>277 live McDonald's items</b></span>
     </div>
   </header>
@@ -338,7 +334,29 @@
       <div class="metric"><span class="k">No declaration</span><span class="n">58%</span><span class="sub">160 of 277 items</span></div>
       <div class="metric"><span class="k">Review flags</span><span class="n">123</span><span class="sub">auto-raised</span></div>
       <div class="metric"><span class="k">Tests passing</span><span class="n">57</span><span class="sub">0 failing</span></div>
-      <div class="metric"><span class="k">Sitemap URLs</span><span class="n">317</span><span class="sub">294 unique ids</span></div>
+      <div class="metric"><span class="k">Brands measured</span><span class="n">1</span><span class="sub">of ~65 in scope</span></div>
+    </div>
+
+    <h3>Scope versus evidence</h3>
+    <p>
+      These are not the same thing in this document, and conflating them would be misleading.
+      <strong>Scope</strong> is eight parent companies plus the EveryBite platform — roughly
+      65 brands. <strong>Evidence</strong> is McDonald's alone.
+    </p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Company</th><th>Brands</th><th>Family</th><th>Data today</th></tr></thead>
+        <tbody>
+          <tr><td>McDonald's</td><td class="num">1</td><td class="id">A</td><td><span class="chip present"><span class="dot"></span>277 items live</span></td></tr>
+          <tr><td>Yum! Brands</td><td class="num">3</td><td class="id">A</td><td><span class="chip silent"><span class="dot"></span>none yet</span></td></tr>
+          <tr><td>Darden</td><td class="num">8</td><td class="id">B</td><td><span class="chip silent"><span class="dot"></span>none yet</span></td></tr>
+          <tr><td>Brinker</td><td class="num">2</td><td class="id">B</td><td><span class="chip silent"><span class="dot"></span>none yet</span></td></tr>
+          <tr><td>Cracker Barrel</td><td class="num">1</td><td class="id">C</td><td><span class="chip silent"><span class="dot"></span>none yet</span></td></tr>
+          <tr><td>EveryBite platform</td><td class="num">~54</td><td class="id">C</td><td><span class="chip silent"><span class="dot"></span>none yet</span></td></tr>
+          <tr><td>Dine Brands</td><td class="num">2</td><td class="id">—</td><td><span class="chip ambig"><span class="dot"></span>unsupported (403)</span></td></tr>
+          <tr><td>Coca-Cola, PepsiCo</td><td class="num">2</td><td class="id">—</td><td><span class="chip silent"><span class="dot"></span>packaged, Phase 8</span></td></tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
@@ -398,6 +416,25 @@
       a later phase, a nice-to-have refinement on top of brand declarations. The measurement
       moves it to load-bearing. Without it, the product is silent on the majority of items.
     </p>
+
+    <div class="finding">
+      <span class="label">Limitation of this evidence — n = 1 brand</span>
+      <p>
+        Every number in this document comes from McDonald's, and McDonald's sits in
+        <strong>Family A</strong> — the family with the weakest allergen data by construction.
+        Family B sources publish <em>matrices</em>, which are complete by design: every item
+        gets a row and every allergen a column, so a Darden guide cannot be 58% silent the way
+        a free-text statement can.
+      </p>
+      <p>
+        So the 58% gap may be a <em>Family A</em> problem rather than a universal one, and the
+        decision to promote inference ahead of everything else rests on a single brand from
+        the worst-case family. Before committing to that ordering, the cheap check is to pull
+        one Darden PDF and one EveryBite payload and measure their declaration coverage
+        directly. If Family B and C are near-complete, the sequencing argument weakens
+        considerably and breadth beats depth.
+      </p>
+    </div>
   </section>
 
   <section>
@@ -448,6 +485,43 @@
   </section>
 
   <section>
+    <h2>One rule, applied twice</h2>
+    <p>
+      Two separate problems turned out to have the same answer, which is the most useful
+      thing to come out of reviewing v0.1.
+    </p>
+    <p>
+      <strong>Across sources:</strong> Cracker Barrel will arrive via both the EveryBite
+      platform and its own published guide. Those two records can disagree.
+      <strong>Across components:</strong> a Big Mac is a bun, a patty, a sauce and a slice of
+      cheese, each with its own allergen profile.
+    </p>
+    <p>
+      Both resolve by <strong>conservative union</strong>. A <em>present</em> anywhere — any
+      source, any component — makes the item <em>present</em>. An
+      <span class="chip brand"><span class="dot"></span>absent_per_brand</span> can never
+      overturn a <span class="chip present"><span class="dot"></span>present</span>; at most
+      it can fill a gap where nothing else has spoken. One rule covers both, and it fails in
+      the direction of over-warning, which is the only survivable direction.
+    </p>
+    <p>
+      This makes the disagreement itself valuable: whenever two sources conflict, the union
+      keeps the user safe <em>and</em> the conflict raises a review flag pointing at a likely
+      parser bug. The safety mechanism and the quality mechanism are the same mechanism.
+    </p>
+
+    <h3>What conservative union does not solve</h3>
+    <p>
+      Item identity across sources is still unmodelled. <code>item_key</code> is currently
+      <code>source_id:slug(name)</code> — <em>source-scoped</em> — so the same food arriving
+      from two brands' feeds produces two unrelated records with no link between them. Until
+      an entity-resolution layer exists, the union above can only be applied <em>within</em> a
+      source. Cross-source union is blocked on that work, and it must land before EveryBite
+      (Phase 3) introduces the first real overlap.
+    </p>
+  </section>
+
+  <section>
     <h2>System plan</h2>
     <p>
       Five stages. Raw bytes are captured before anything is parsed, so a parser that breaks
@@ -456,17 +530,26 @@
     <div class="scroll">
       <table>
         <thead>
-          <tr><th>Stage</th><th>Module</th><th>Responsibility</th></tr>
+          <tr><th>Stage</th><th>Module</th><th>Status</th><th>Responsibility</th></tr>
         </thead>
         <tbody>
-          <tr><td class="id">1 · fetch</td><td><code>fetcher.js</code></td><td>robots.txt per host, per-host rate limit, identifying User-Agent, 403/429 → stop permanently rather than retry</td></tr>
-          <tr><td class="id">2 · capture</td><td><code>snapshot.js</code></td><td>Immutable content-addressed store of raw bytes. Nothing overwrites; identical bytes collapse to one path</td></tr>
-          <tr><td class="id">3 · normalize</td><td><code>normalize.js</code></td><td>All three source families → one canonical item. Rejects any incomplete nine-allergen claim set</td></tr>
-          <tr><td class="id">4 · resolve</td><td><code>contains.js</code>, <code>allergens.js</code></td><td>Brand declarations first; dictionary inference where the brand is silent. Deterministic and traceable to the triggering substring</td></tr>
-          <tr><td class="id">5 · detect</td><td><code>diff.js</code>, <code>store.js</code></td><td>Content-hash diff against last accepted version; changes append to history and enter the review queue</td></tr>
+          <tr><td class="id">1 · fetch</td><td><code>fetcher.js</code></td><td><span class="chip brand"><span class="dot"></span>built</span></td><td>robots.txt per host, per-host rate limit, identifying User-Agent, 403/429 → stop permanently rather than retry</td></tr>
+          <tr><td class="id">2 · capture</td><td><code>snapshot.js</code></td><td><span class="chip brand"><span class="dot"></span>built</span></td><td>Immutable content-addressed store of raw bytes. Nothing overwrites; identical bytes collapse to one path</td></tr>
+          <tr><td class="id">3 · normalize</td><td><code>normalize.js</code></td><td><span class="chip brand"><span class="dot"></span>built</span></td><td>All three source families → one canonical item. Rejects any incomplete nine-allergen claim set</td></tr>
+          <tr><td class="id">4a · declare</td><td><code>contains.js</code></td><td><span class="chip brand"><span class="dot"></span>built</span></td><td>Reads the brand's own <code>Contains:</code> declarations. Covers 42% of items</td></tr>
+          <tr><td class="id">4b · infer</td><td><code>allergens.js</code></td><td><span class="chip ambig"><span class="dot"></span>not built</span></td><td>Dictionary inference where the brand is silent — the other 58%. Deterministic, traceable to the triggering substring</td></tr>
+          <tr><td class="id">4c · reconcile</td><td><code>resolve.js</code></td><td><span class="chip ambig"><span class="dot"></span>not built</span></td><td>Conservative union across components and across sources (FR-10, FR-13)</td></tr>
+          <tr><td class="id">5 · detect</td><td><code>diff.js</code>, <code>staleness.js</code></td><td><span class="chip ambig"><span class="dot"></span>not built</span></td><td>Change classification by safety direction, seen-set reconciliation, tombstones, staleness transitions</td></tr>
+          <tr><td class="id">6 · reprocess</td><td><code>bin/reprocess.js</code></td><td><span class="chip ambig"><span class="dot"></span>not built</span></td><td>Re-derive claims from stored snapshots after a parser or dictionary change, without re-fetching</td></tr>
         </tbody>
       </table>
     </div>
+    <p>
+      Stage 5's persistence primitives (history, review queue, run log) are built inside
+      <code>store.js</code>; the classification logic that drives them is not. This table is
+      split by build status on purpose — v0.1 of this document listed planned modules
+      alongside real ones, which made the system read as more finished than it was.
+    </p>
 
     <h3>Three source families</h3>
     <p>
@@ -519,10 +602,18 @@
           <tr><td class="id">FR-3</td><td>An item with an ingredient list but no brand declaration is flagged, never displayed as an all-clear</td><td>The 58% case. Silence must not read as safety</td></tr>
           <tr><td class="id">FR-4</td><td>Allergen inference is deterministic and cites the exact substring that triggered it</td><td>Reproducible and auditable; an LLM may route ambiguity to review but never decide</td></tr>
           <tr><td class="id">FR-5</td><td>Formulation changes append to history; nothing is overwritten</td><td>Change history is the product, not a byproduct</td></tr>
-          <tr><td class="id">FR-6</td><td>A failed or blocked source marks its items stale rather than serving prior data as current</td><td>Silent staleness is the failure mode that actually causes harm</td></tr>
+          <tr><td class="id">FR-6</td><td>A failed or blocked source marks its items stale rather than serving prior data as current. Items unverified for more than 7 days transition to <em>stale</em> automatically</td><td>Silent staleness is the failure mode that actually causes harm. <strong>Not yet implemented</strong> — the threshold constant exists but nothing acts on it</td></tr>
           <tr><td class="id">FR-7</td><td>Changes enter a review queue rather than auto-publishing; the same pending issue is never queued twice</td><td>A diff may mean a reformulation or a broken parser. Duplicates would bury real findings</td></tr>
           <tr><td class="id">FR-8</td><td>Unsupported brands are listed with the reason, visible to users</td><td>A stated gap is safe; an invisible gap is not</td></tr>
           <tr><td class="id">FR-9</td><td>Matrix extraction resolves columns by header text, never fixed index</td><td>A silent off-by-one column would mis-assign an allergen — the worst failure available</td></tr>
+          <tr><td class="id">FR-10</td><td>Where sources disagree, the resolved state is the <strong>conservative union</strong>: a <em>present</em> from any source always beats an <em>absent_per_brand</em> from any other. Disagreement additionally raises a review flag</td><td>Over-warning is recoverable; under-warning is not. Also gives us a free signal for finding bad parsers</td></tr>
+          <tr><td class="id">FR-11</td><td>Review gating is <strong>asymmetric by safety direction</strong>. A change that adds or escalates an allergen publishes immediately; a change that removes or downgrades one blocks on human review</td><td>Delaying a new warning endangers users. At ~65 brands a symmetric queue guarantees the safety gate becomes the cause of stale data</td></tr>
+          <tr><td class="id">FR-12</td><td>Each run reconciles the seen-set. Items no longer published are <strong>tombstoned</strong> — withdrawn from results, history retained</td><td>Serving a discontinued formulation as current is a live hazard. Nothing detects this today</td></tr>
+          <tr><td class="id">FR-13</td><td>Allergen claims are held <strong>per component</strong>. An item's claim is the conservative union of its components. Sources without component data get one implicit whole-item component</td><td>The real question is usually about a modified order. Uniform modelling keeps matrix sources on the same code path</td></tr>
+          <tr><td class="id">FR-14</td><td>Claims can be re-derived from stored snapshots without re-fetching. Re-derivations are classified as <em>parser_change</em>, distinct from source changes</td><td>Otherwise one dictionary tweak floods the review queue with hundreds of false “the brand changed something” entries</td></tr>
+          <tr><td class="id">FR-15</td><td>Inference accuracy is measured against a hand-labelled gold set drawn from items that <em>lack</em> brand declarations</td><td>Scoring against the 42% that have declarations tests inference on exactly the items brands chose to label — a biased sample that proves nothing about the 58%</td></tr>
+          <tr><td class="id">FR-16</td><td>A run that completes with zero items, or a source silent for more than 48 hours, raises an operator alert</td><td>A quietly broken adapter is indistinguishable from a brand with no changes</td></tr>
+          <tr><td class="id">FR-17</td><td>Allergen state is never conveyed by colour alone, and the interface is fully operable by screen reader and keyboard</td><td>People make health decisions here; colour-blind and low-vision users are not an edge case</td></tr>
         </tbody>
       </table>
     </div>
@@ -551,40 +642,54 @@
       <div class="phase">
         <span class="pn">1</span>
         <div class="pbody">
-          <span class="pt">Allergen inference — promoted</span>
-          <span class="pd">Dictionary inference over ingredient text with the FDA nine and their derivative names. Cross-checked against brand declarations, disagreements to review. Was Phase 4; the 58% measurement makes it the blocking gap.</span>
+          <span class="pt">Allergen inference + gold set</span>
+          <span class="pd">Dictionary inference over ingredient text covering the FDA nine and their derivative names — whey, casein, semolina, albumin, tahini. Validated against a hand-labelled set drawn from items <em>without</em> declarations (FR-15). Was Phase 4 in v0.1; the 58% measurement makes it the blocking gap.</span>
         </div>
       </div>
       <div class="phase">
         <span class="pn">2</span>
         <div class="pbody">
-          <span class="pt">Change detection + daily run</span>
-          <span class="pd">Content-hash diffing, staleness marking, scheduled ingestion. Verified by modifying a stored snapshot and by killing the network mid-run.</span>
+          <span class="pt">Component model + union</span>
+          <span class="pd">Per-component claims with the item resolving as the conservative union (FR-13, FR-10). Matrix sources get one implicit whole-item component so every family shares a code path. Unlocks “no cheese” style questions.</span>
         </div>
       </div>
       <div class="phase">
         <span class="pn">3</span>
+        <div class="pbody">
+          <span class="pt">Change detection, done properly</span>
+          <span class="pd">Asymmetric review gating by safety direction (FR-11), seen-set reconciliation and tombstones (FR-12), the staleness transition that v0.1 claimed but never implemented (FR-6), snapshot reprocessing (FR-14), and silent-failure alerting (FR-16).</span>
+        </div>
+      </div>
+      <div class="phase">
+        <span class="pn">4</span>
+        <div class="pbody">
+          <span class="pt">Entity resolution — new, and blocking</span>
+          <span class="pd">Cross-source item identity, so the same food from two feeds becomes one item. Must land <em>before</em> Phase 5, because EveryBite introduces the first real overlap and cross-source union is meaningless without it.</span>
+        </div>
+      </div>
+      <div class="phase">
+        <span class="pn">5</span>
         <div class="pbody">
           <span class="pt">EveryBite — Family C</span>
           <span class="pd">~54 brands from one adapter at ingredient granularity, behind a kill switch so nothing downstream depends on it. Sanctioned access requested in parallel.</span>
         </div>
       </div>
       <div class="phase">
-        <span class="pn">4</span>
+        <span class="pn">6</span>
         <div class="pbody">
           <span class="pt">Darden + Brinker — Family B</span>
           <span class="pd">Coordinate-aware PDF grid extraction, ~10 brands from one extractor. Includes a shuffled-header fixture test as the off-by-one column guard.</span>
         </div>
       </div>
       <div class="phase">
-        <span class="pn">5</span>
+        <span class="pn">7</span>
         <div class="pbody">
-          <span class="pt">Remaining QSR, then dashboard</span>
-          <span class="pd">Taco Bell, KFC, Pizza Hut on the Family A pattern. Then the browse and review surface, showing provenance, source family, last-verified date, and the unsupported list.</span>
+          <span class="pt">Remaining QSR, then the interface</span>
+          <span class="pd">Taco Bell, KFC, Pizza Hut on the Family A pattern. Then the browse and review surface — provenance, source family, last-verified date, the unsupported list, and the accessibility requirements in FR-17.</span>
         </div>
       </div>
       <div class="phase">
-        <span class="pn">6</span>
+        <span class="pn">8</span>
         <div class="pbody">
           <span class="pt">Packaged goods</span>
           <span class="pd">Coca-Cola and PepsiCo retail products via Open Food Facts daily deltas and USDA FoodData Central, through the same normalization contract.</span>
@@ -612,6 +717,11 @@
       <li><strong>Family B gives allergens without ingredients.</strong> Darden and Brinker items will never answer non-allergen dietary questions. This is a permanent shape difference, not a coverage gap to close.</li>
       <li><strong>EveryBite is unsanctioned pending reply</strong> and may change or withdraw access at any time. Nothing may depend on it.</li>
       <li><strong>Adapters are permanently maintenance-bearing.</strong> Chains restructure pages and revise PDFs at will. 17 of 317 detail fetches already failed on the first live run.</li>
+      <li><strong>Component data is only available from Family A.</strong> Darden and Brinker publish item-level matrices with no component breakdown, so customization questions will be answerable for QSR items and unanswerable for casual dining. That asymmetry is a property of the sources, not something more engineering can fix, and the interface must not imply otherwise.</li>
+      <li><strong>Conservative union will over-warn, by design.</strong> A single bad parse that emits a spurious <em>present</em> now propagates to the item and cannot be overridden by a brand's negative assertion. The disagreement flag is the mitigation, which makes review throughput a safety dependency rather than a nicety.</li>
+      <li><strong>Asymmetric gating trusts the diff classifier.</strong> Auto-publishing allergen-adding changes means a parser that hallucinates allergens ships to users unreviewed. The classifier that decides “is this change safety-increasing?” becomes safety-critical code in its own right.</li>
+      <li><strong>No liability position exists yet.</strong> There is no terms-of-use, no disclaimer surface, and no stated stance on what happens if someone is harmed after relying on this. For a tool in this domain that is a product gap, not a legal footnote, and it should be resolved before anything is exposed publicly.</li>
+      <li><strong>Scope is US-only and undeclared.</strong> The McDonald's adapter hardcodes <code>country=US&amp;language=en</code>. Formulations differ by market, so a non-US user reading this data would be misled. This needs to become an explicit non-goal or an explicit roadmap item.</li>
       <li><strong>The deepest limit is not technical.</strong> This dataset can support avoidance decisions. It cannot support safety clearance, and no amount of engineering changes that.</li>
     </ul>
   </section>
@@ -632,6 +742,7 @@
           <tr><td>Flagged: no ingredient statement</td><td class="num">7</td><td>Source returned nothing to parse</td></tr>
           <tr><td>Flagged: unrecognized allergen term</td><td class="num">1</td><td>Non-FDA-nine term needing review</td></tr>
           <tr><td>Precautionary “may contain” claims</td><td class="num">38</td><td>Stored as <em>ambiguous</em></td></tr>
+          <tr><td>“Refresher” size variants stored separately</td><td class="num">9</td><td>Only 3 distinct formulations among them — size variants are not yet grouped</td></tr>
         </tbody>
       </table>
     </div>
