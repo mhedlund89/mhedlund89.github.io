@@ -79,6 +79,9 @@ a { color: var(--accent); }
 @keyframes rock { 20% { transform: rotate(-6deg); } 45% { transform: rotate(4deg); } 70% { transform: rotate(-2deg); } }
 @keyframes lid { 50% { transform: scaleY(1); } }
 .pop { font-size: 15px; color: var(--muted); margin-top: -4px; min-height: 1.6em; text-align: center; }
+.pop.said { font-weight: 600; font-style: italic; color: var(--fg); }
+.pop.said::before { content: "\201C"; }
+.pop.said::after { content: "\201D"; }
 
 .cta { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 12px; }
 .cta a { text-decoration: none; font-weight: 600; font-size: 15px; padding: 11px 20px; border-radius: 10px; }
@@ -270,6 +273,7 @@ Sam</div></div>
   let hello = 0;
   btn.addEventListener('click', () => {
     pop.innerHTML = hellos[hello++ % hellos.length];
+    pop.classList.add('said');
     btn.classList.remove('hop'); void btn.offsetWidth; btn.classList.add('hop');
   });
   btn.addEventListener('animationend', e => { if (e.animationName === 'hop') btn.classList.remove('hop'); });
